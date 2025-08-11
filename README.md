@@ -72,3 +72,4 @@ Source: [Kaggle – Lung Cancer Dataset](https://www.kaggle.com/datasets/khwaish
 ### References
 
 - [Kaggle – Lung Cancer Dataset](https://www.kaggle.com/datasets/khwaishsaxena/lung-cancer-dataset)
+- [GitHub](https://github.com/neutroon/data-mining-project)
