@@ -1,106 +1,74 @@
 
-# Lung Cancer Dataset – Data Exploration & Preprocessing
+## Lung Cancer Dataset – End‑to‑End EDA, Preprocessing, and Baseline Models
 
-## 📌 Project Overview
+### Project overview
 
-This project focuses on the **exploration and preprocessing** of the [Lung Cancer Dataset](https://www.kaggle.com/datasets/khwaishsaxena/lung-cancer-dataset). It is part of a final project task that includes cleaning, transforming, and preparing the dataset for future machine learning use.
+End‑to‑end workflow on a large lung cancer dataset (~890k rows): exploratory data analysis, outlier analysis, feature engineering, robust preprocessing with a `ColumnTransformer`, baseline model training (Logistic Regression and Random Forest), evaluation, and feature importance review — all implemented in `notebook.ipynb`.
 
----
+### Dataset
 
-## 📁 Dataset Description
+- **Demographics**: `age`, `gender`, `country`
+- **Clinical**: `cancer_stage`, comorbidities (`hypertension`, `asthma`, `cirrhosis`, `other_cancer`), `treatment_type`, `bmi`, `cholesterol_level`
+- **Timeline**: `diagnosis_date`, `end_treatment_date`
+- **Target**: `survived` (0 = No, 1 = Yes)
 
-The dataset includes patient-level data such as:
+Source: [Kaggle – Lung Cancer Dataset](https://www.kaggle.com/datasets/khwaishsaxena/lung-cancer-dataset)
 
-- **Demographics**: age, gender, country
-- **Medical details**: cancer stage, comorbidities, treatment type
-- **Timeline**: diagnosis date and treatment end date
-- **Target variable**: `survived` (0 = No, 1 = Yes)
+### What’s implemented in the notebook
 
----
+1) Data loading and quick EDA
+- Load CSV with pandas
+- Preview (`head`), schema (`info`), summary stats (`describe`)
+- Target exploration: class counts for `survived`
 
-## ✅ Tasks Completed
+2) Outlier analysis and optional removal
+- IQR‑based detector over numeric columns with per‑column bounds and counts
+- Utility to remove rows outside IQR bounds (kept optional; main ML pipeline uses the original data copy)
 
-### 1. **Data Loading**
-- Dataset loaded using `pandas.read_csv()`
-- Handled missing values by detecting `?` as `NaN`
+3) Normalization for inspection
+- `MinMaxScaler` applied to numeric columns to examine scaled distributions (used for analysis, not fed to the models)
 
-### 2. **Exploratory Data Analysis**
-- Displayed first 5 rows
-- Inspected datatypes and value distributions
-- Examined missing values per column
+4) Feature engineering
+- `treatment_duration_days` computed as `end_treatment_date - diagnosis_date` (in days)
+- Visualizations: histogram and boxplot for distribution and spread
 
-### 3. **Missing Value Handling**
-- Identified and filled missing values using:
-  - **Median** for numeric features
-  - **Mode** for categorical features (optional)
+5) ML preprocessing pipeline
+- Drop non‑informative columns: `id`, `country`
+- Automated type detection for `numeric_cols` and `categorical_cols`
+- `ColumnTransformer` with two pipelines:
+  - Numeric: `SimpleImputer(strategy='mean')` → `StandardScaler`
+  - Categorical: `SimpleImputer(strategy='most_frequent')` → `OneHotEncoder(handle_unknown='ignore')`
+- Datetime columns are not modeled directly and are excluded from the transformer; engineered durations are used instead
 
-### 4. **Outlier Detection and Handling**
-- Used the **IQR method** to detect outliers in numeric columns
-- Applied two methods:
-  - **Removal** of rows containing outliers
-  - **Capping (Winsorization)** to clip outlier values to valid range
+6) Train/test split
+- 80/20 split with `random_state=42` (stratification used where applicable during exploration; model pipeline uses the standard split)
 
-### 5. **Feature Scaling**
-- Applied **Min-Max Normalization** to scale numeric features between 0 and 1 using `MinMaxScaler`
-- Standardization using `StandardScaler` is supported (not the default)
+7) Baseline modeling and evaluation
+- Logistic Regression (`max_iter=1000`)
+- Random Forest (`n_estimators=100`, `random_state=42`, `n_jobs=-1` for parallel training)
+- Metrics: accuracy on the hold‑out test set for both models
+- Random Forest feature importance with aligned feature names (`numeric` + one‑hot categorical)
 
-### 6. **Train/Test Split**
-- Separated data into **features (`X`)** and **target (`y`)**
-- Encoded categorical variables using `pd.get_dummies()`
-- Split into training and testing sets using `train_test_split()` with `stratify=y` for balanced classes
 
-### 7. **Feature Engineering**
-- Created a new column: `treatment_duration_days` by calculating:
-  ```
-  treatment_end_date - diagnosis_date
-  ```
-- Visualized this feature using a **boxplot** to analyze its spread and detect any anomalies
+### Project structure
 
----
+- `Lung Cancer.csv` — dataset
+- `notebook.ipynb` — complete analysis, preprocessing, models, and visuals
+- `Titanic.ipynb` — separate, unrelated example notebook
+- `Lung Cancer Dataset.docx`, `Lung Cancer Dataset.pdf` — dataset documentation
+- `README.md` — this document
 
-## 📊 Visualizations
+### Notes and considerations
 
-- Boxplot of `treatment_duration_days` to analyze distribution
-- (Optional) Histogram and additional plots can be added for deeper insights
+- Dataset is large; expect multi‑minute training without a strong CPU/RAM. Parallelism is enabled for Random Forest.
+- Class imbalance may affect accuracy; consider additional metrics (precision/recall/ROC‑AUC) in future iterations.
+- `ColumnTransformer` ensures reproducible, consistent preprocessing across splits and models.
 
----
+### Contributors
 
-## 🛠 Technologies Used
-
-- Python 3.x
-- pandas
-- numpy
-- matplotlib
-- seaborn
-- scikit-learn
-
----
-
-## 📂 Files Included
-
-- `Lung Cancer.csv` – Original dataset
-- `notebook.ipynb` / `preprocessing.py` – Python code for all steps
-- `report.docx` – Word report with explanation and screenshots
-- `report.pdf` – PDF version of the report
-- `README.md` – This file
-
----
-
-## 🧠 Future Work
-
-- Train machine learning models (Logistic Regression, Decision Trees, etc.)
-- Evaluate using accuracy, precision, recall
-- Apply further feature selection or dimensionality reduction (e.g., PCA)
-
----
-
-## 👥 Contributors
-
-- Hesham Mansour  
+- Hesham Mansour
 - Hosny Almasrii
 
----
+### References
 
-## 📎 References
-
-- [Kaggle Dataset](https://www.kaggle.com/datasets/khwaishsaxena/lung-cancer-dataset)
+- [Kaggle – Lung Cancer Dataset](https://www.kaggle.com/datasets/khwaishsaxena/lung-cancer-dataset)
